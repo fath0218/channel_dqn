@@ -4,7 +4,7 @@ import logging
 import random
 from gym import spaces, logger
 from gym.utils import seeding
-import numpy #as np
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,6 @@ class ChannelEnv(gym.Env):
 		self.terminate_states[2] = 1
 		self.terminate_states[4] = 1
 		self.terminate_states[8] = 1
-
 		#self.terminate_states[1] = 1
 		#self.terminate_states[3] = 1
 		#self.terminate_states[5] = 1
@@ -196,7 +195,7 @@ class ChannelEnv(gym.Env):
 		state = self.state
 		print("present state:", state)
 		if state in self.terminate_states:
-			return state, 0, True, {}
+			return state, 5.0, True, {}
 		key = "%d-%d"%(state, action)   #将状态和动作组成字典的键值
 		print("key:", key)
 	    	#状态转移
@@ -220,11 +219,11 @@ class ChannelEnv(gym.Env):
 			r = self.rewards[key]
 			
 		
-		return next_state, r,is_terminal,{}
+		return np.array(next_state), r,is_terminal,{}
 		
 	def reset(self):
 		self.state = self.states[int(random.random() * len(self.states))]
-		return self.state
+		return np.array(self.state)
 		
 	def render(self, mode='human', close=False):
 		if close:

@@ -16,7 +16,7 @@ class Brain:
     def _createModel(self):
         model = Sequential()
 
-        model.add(Dense(output_dim=64, activation='relu', input_dim=stateCnt))
+        model.add(Dense(output_dim=64, activation='relu', input_dim=1))#stateCnt
         model.add(Dense(output_dim=actionCnt, activation='linear'))
 
         opt = RMSprop(lr=0.00025)
@@ -30,8 +30,15 @@ class Brain:
     def predict(self, s):
         return self.model.predict(s)
 
-    def predictOne(self, s):
-        return self.predict(s.reshape(1, self.stateCnt)).flatten()
+    def predict(self, s, target=False):
+        if target:
+            return self.model_.predict(s)
+        else:
+            return self.model.predict(s)
+
+    def predictOne(self, s, target=False):
+        return self.predict(s.reshape(1, self.stateCnt), target=target).flatten()
+        #return self.predict(self.stateCnt, target=target).flatten()
 
 #-------------------- MEMORY --------------------------
 class Memory:   # stored as ( s, a, r, s_ )
@@ -73,8 +80,10 @@ class Agent:
         
     def act(self, s):
         if random.random() < self.epsilon:
+            print("*****random step*****")
             return random.randint(0, self.actionCnt-1)
         else:
+            print("*****predict step*****")
             return numpy.argmax(self.brain.predictOne(s))
 
     def observe(self, sample):  # in (s, a, r, s_) format
@@ -130,6 +139,7 @@ class Environment:
             a = agent.act(s)
             print("act------------:", a+1)
             s_, r, done, info = self.env.step(a+1)
+            print("reward:", r)
 
             if done: # terminal state
                 s_ = None
@@ -143,7 +153,6 @@ class Environment:
             if done:
                 break
 	
-        print("reward:", r)
         print("Total reward:", R)
         print("\n")
 
@@ -151,7 +160,7 @@ class Environment:
 PROBLEM = 'Channel-v0'
 env = Environment(PROBLEM)
 
-stateCnt  = 1#env.env.observation_space.shape[0]
+stateCnt  = np.array(1)#env.env.observation_space.shape[0]
 actionCnt = 10#env.env.action_space.n
 
 agent = Agent(stateCnt, actionCnt)
