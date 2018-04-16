@@ -5,7 +5,9 @@ from keras.models import Sequential
 from keras.layers import *
 from keras.optimizers import * 
 
+CHANNEL_CNT = 10
 class Brain:
+
     def __init__(self, stateCnt, actionCnt):
         self.stateCnt = stateCnt
         self.actionCnt = actionCnt
@@ -128,20 +130,27 @@ class Environment:
     def __init__(self, problem):
         self.problem = problem
         self.env = gym.make(problem)
+        self.pick_times = [0,0,0,0,0,0,0,0,0,0]
+        self.overall_step = 0.000
+        self.hundred_step = [0.000 for x in range(0, 100)]
+        self.overall_connect = 0.000
 
     def run(self, agent):
         s = self.env.reset()
         R = 0 
-
+        step = 0
+        
         while True:            
             self.env.render()
 
             a = agent.act(s)
+            step += 1
             print("act------------:", a+1)
             s_, r, done, info = self.env.step(a+1)
             print("reward:", r)
 
             if done: # terminal state
+                self.pick_times[s_-1] += 1
                 s_ = None
 
             agent.observe( (s, a, r, s_) )
@@ -154,6 +163,16 @@ class Environment:
                 break
 	
         print("Total reward:", R)
+        print("Steps taken:", step)
+        self.hundred_step[int(self.overall_connect % 100)] = step
+        self.overall_step += float(step)
+        self.overall_connect += 1.000
+        print("Average steps:\t\t\t\t", float(self.overall_step/self.overall_connect))
+        print("Average steps of latest 100 tries:\t", float(sum(self.hundred_step)/100.000))
+        for i in range (CHANNEL_CNT):
+            if self.pick_times[i] != 0:
+                print("Channel %d picked times: %d" %(i+1, self.pick_times[i]))
+        print("Overall run time:", int(self.overall_connect))
         print("\n")
 
 #-------------------- MAIN ----------------------------
