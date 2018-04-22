@@ -1,11 +1,17 @@
 import random, numpy, math, gym
+import matplotlib.pyplot as plt
 
 #-------------------- BRAIN ---------------------------
 from keras.models import Sequential
 from keras.layers import *
 from keras.optimizers import * 
 
-CHANNEL_CNT = 10
+plt.axis([0, 8, 0.5, 6])
+#plt.ion()
+
+CHANNEL_CNT = 30
+
+
 class Brain:
 
     def __init__(self, stateCnt, actionCnt):
@@ -130,7 +136,7 @@ class Environment:
     def __init__(self, problem):
         self.problem = problem
         self.env = gym.make(problem)
-        self.pick_times = [0,0,0,0,0,0,0,0,0,0]
+        self.pick_times = [0 for x in range(CHANNEL_CNT)]
         self.overall_step = 0.000
         self.hundred_step = [0.000 for x in range(0, 100)]
         self.overall_connect = 0.000
@@ -167,20 +173,46 @@ class Environment:
         self.hundred_step[int(self.overall_connect % 100)] = step
         self.overall_step += float(step)
         self.overall_connect += 1.000
-        print("Average steps:\t\t\t\t", float(self.overall_step/self.overall_connect))
-        print("Average steps of latest 100 tries:\t", float(sum(self.hundred_step)/100.000))
-        for i in range (CHANNEL_CNT):
-            if self.pick_times[i] != 0:
-                print("Channel %d picked times: %d" %(i+1, self.pick_times[i]))
+        avg_step = float(self.overall_step/self.overall_connect)
+        print("Average steps:\t\t\t\t", avg_step)
+        if int(self.overall_connect) > 100:
+            avg_step_100 = float(sum(self.hundred_step)/100)
+        else:
+            avg_step_100 = float(sum(self.hundred_step)/int(self.overall_connect))
+        print("Average steps of latest 100 tries:\t", avg_step_100)
+        #for i in range (CHANNEL_CNT):
+         #   if self.pick_times[i] != 0:
+                #print("Channel %d picked times: %d" %(i+1, self.pick_times[i]))
         print("Overall run time:", int(self.overall_connect))
         print("\n")
+
+        if int(self.overall_connect) < 245:
+            x_scale = numpy.log(int(self.overall_connect))
+        else: 
+            x_scale = numpy.log10(int(self.overall_connect)) + 3.1
+        if int(self.overall_connect) < 245:
+            plt.scatter(x_scale, avg_step, c = 'r')
+            plt.scatter(x_scale, avg_step_100, c = 'b')
+            plt.pause(0.00001)
+        elif (int(self.overall_connect) < 1000) and (int(self.overall_connect) % 10 == 0):
+            plt.scatter(x_scale, avg_step, c = 'r')
+            plt.scatter(x_scale, avg_step_100, c = 'b')
+            plt.pause(0.00001)
+        elif (int(self.overall_connect) < 2000) and (int(self.overall_connect) % 30 == 0):
+            plt.scatter(x_scale, avg_step, c = 'r')
+            plt.scatter(x_scale, avg_step_100, c = 'b')
+            plt.pause(0.00001)
+        elif (int(self.overall_connect) < 10000) and (int(self.overall_connect) % 100 == 0):
+            plt.scatter(x_scale, avg_step, c = 'r')
+            plt.scatter(x_scale, avg_step_100, c = 'b')
+            plt.pause(0.00001)
 
 #-------------------- MAIN ----------------------------
 PROBLEM = 'Channel-v0'
 env = Environment(PROBLEM)
 
 stateCnt  = np.array(1)#env.env.observation_space.shape[0]
-actionCnt = 10#env.env.action_space.n
+actionCnt = CHANNEL_CNT#env.env.action_space.n
 
 agent = Agent(stateCnt, actionCnt)
 
