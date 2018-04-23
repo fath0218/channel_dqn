@@ -32,7 +32,7 @@ see [Conda documentation#Installation](https://conda.io/docs/user-guide/install/
 
 ### Create Environments
 1. Create a conda environment with python 3.6: `conda create --name gymtestbed python=3.6`
-2. Switch to created environment: `source <anaconda path>/bin/activate gymtestbed`. For example `source ~anaconda3/bin/activate gymtestbed`.
+2. Switch to created environment: `source <anaconda path>/bin/activate gymtestbed`. For example, `source ~anaconda3/bin/activate gymtestbed`.
 see also [Conda documentation#Managing Environments](https://conda.io/docs/user-guide/getting-started.html#managing-environments)
 
 ### Install dependencies
