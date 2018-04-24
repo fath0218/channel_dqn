@@ -174,248 +174,250 @@ class ChannelEnv(gym.Env):
 			#创建网格世界
 			#self.line1 = rendering.Line((100,300),(500,300))
             	#创建信道模型1
-			self.chnl1 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[0], self.y[0]))
-			self.chnl1.add_attr(self.circletrans)
-			if self.terminate_states[1]:
-				self.chnl1.set_color(0,255,0)        #available - green
-			else:
-				self.chnl1.set_color(255,0,0)        #blocked - red	
+			self.chnl = []
+			for i in range(CHANNEL_CNT):
+				self.chnl.append(rendering.make_circle(50))
+				self.circletrans = rendering.Transform(translation=(self.x[i], self.y[i]))
+				self.chnl[i].add_attr(self.circletrans)
+				if self.terminate_states[i + 1]:
+					self.chnl[i].set_color(0,255,0)        #available - green
+				else:
+					self.chnl[i].set_color(255,0,0)        #blocked - red	
 
-            		#创建第二个信道
-			self.chnl2 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[1], self.y[1]))
-			self.chnl2.add_attr(self.circletrans)
-			if self.terminate_states[2]:
-				self.chnl2.set_color(0,255,0)        #available - green
-			else:
-				self.chnl2.set_color(255,0,0)        #blocked - red
-			
-			self.chnl3 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[2], self.y[2]))
-			self.chnl3.add_attr(self.circletrans)
-			if self.terminate_states[3]:
-				self.chnl3.set_color(0,255,0)        #available - green
-			else:
-				self.chnl3.set_color(255,0,0)        #blocked - red
-			
-			self.chnl4 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[3], self.y[3]))
-			self.chnl4.add_attr(self.circletrans)
-			if self.terminate_states[4]:
-				self.chnl4.set_color(0,255,0)        #available - green
-			else:
-				self.chnl4.set_color(255,0,0)        #blocked - red
-			
-			self.chnl5 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[4], self.y[4]))
-			self.chnl5.add_attr(self.circletrans)
-			if self.terminate_states[5]:
-				self.chnl5.set_color(0,255,0)        #available - green
-			else:
-				self.chnl5.set_color(255,0,0)        #blocked - red
-			
-			self.chnl6 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[5], self.y[5]))
-			self.chnl6.add_attr(self.circletrans)
-			if self.terminate_states[6]:
-				self.chnl6.set_color(0,255,0)        #available - green
-			else:
-				self.chnl6.set_color(255,0,0)        #blocked - red
-			
-			self.chnl7 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[6], self.y[6]))
-			self.chnl7.add_attr(self.circletrans)
-			if self.terminate_states[7]:
-				self.chnl7.set_color(0,255,0)        #available - green
-			else:
-				self.chnl7.set_color(255,0,0)        #blocked - red
-			
-			self.chnl8 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[7], self.y[7]))
-			self.chnl8.add_attr(self.circletrans)
-			if self.terminate_states[8]:
-				self.chnl8.set_color(0,255,0)        #available - green
-			else:
-				self.chnl8.set_color(255,0,0)        #blocked - red
-			
-			self.chnl9 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[8], self.y[8]))
-			self.chnl9.add_attr(self.circletrans)
-			if self.terminate_states[9]:
-				self.chnl9.set_color(0,255,0)        #available - green
-			else:
-				self.chnl9.set_color(255,0,0)        #blocked - red
-			
-			self.chnl10 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[9], self.y[9]))
-			self.chnl10.add_attr(self.circletrans)
-			if self.terminate_states[10]:
-				self.chnl10.set_color(0,255,0)        #available - green
-			else:
-				self.chnl10.set_color(255,0,0)        #blocked - red
-
-		##创建第11个信道
-			self.chnl11 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[10], self.y[10]))
-			self.chnl11.add_attr(self.circletrans)
-			if self.terminate_states[11]:
-				self.chnl11.set_color(0,255,0)        #available - green
-			else:
-				self.chnl11.set_color(255,0,0)        #blocked - red	
-
-			self.chnl12 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[11], self.y[11]))
-			self.chnl12.add_attr(self.circletrans)
-			if self.terminate_states[12]:
-				self.chnl12.set_color(0,255,0)        #available - green
-			else:
-				self.chnl12.set_color(255,0,0)        #blocked - red
-			
-			self.chnl13 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[12], self.y[12]))
-			self.chnl13.add_attr(self.circletrans)
-			if self.terminate_states[13]:
-				self.chnl13.set_color(0,255,0)        #available - green
-
-			else:
-				self.chnl13.set_color(255,0,0)        #blocked - red
-			
-			self.chnl14 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[13], self.y[13]))
-			self.chnl14.add_attr(self.circletrans)
-			if self.terminate_states[14]:
-				self.chnl14.set_color(0,255,0)        #available - green
-			else:
-				self.chnl14.set_color(255,0,0)        #blocked - red
-			
-			self.chnl15 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[14], self.y[14]))
-			self.chnl15.add_attr(self.circletrans)
-			if self.terminate_states[15]:
-				self.chnl15.set_color(0,255,0)        #available - green
-			else:
-				self.chnl15.set_color(255,0,0)        #blocked - red
-			
-			self.chnl16 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[15], self.y[15]))
-			self.chnl16.add_attr(self.circletrans)
-			if self.terminate_states[16]:
-				self.chnl16.set_color(0,255,0)        #available - green
-			else:
-				self.chnl16.set_color(255,0,0)        #blocked - red
-			
-			self.chnl17 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[16], self.y[16]))
-			self.chnl17.add_attr(self.circletrans)
-			if self.terminate_states[17]:
-				self.chnl17.set_color(0,255,0)        #available - green
-			else:
-				self.chnl17.set_color(255,0,0)        #blocked - red
-			
-			self.chnl18 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[17], self.y[17]))
-			self.chnl18.add_attr(self.circletrans)
-			if self.terminate_states[18]:
-				self.chnl18.set_color(0,255,0)        #available - green
-			else:
-				self.chnl18.set_color(255,0,0)        #blocked - red
-			
-			self.chnl19 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[18], self.y[18]))
-			self.chnl19.add_attr(self.circletrans)
-			if self.terminate_states[19]:
-				self.chnl19.set_color(0,255,0)        #available - green
-			else:
-				self.chnl19.set_color(255,0,0)        #blocked - red
-			
-			self.chnl20 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[19], self.y[19]))
-			self.chnl20.add_attr(self.circletrans)
-			if self.terminate_states[20]:
-				self.chnl20.set_color(0,255,0)        #available - green
-			else:
-				self.chnl20.set_color(255,0,0)        #blocked - red
-		##创建第21个信道
-			self.chnl21 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[20], self.y[20]))
-			self.chnl21.add_attr(self.circletrans)
-			if self.terminate_states[21]:
-				self.chnl21.set_color(0,255,0)        #available - green
-			else:
-				self.chnl21.set_color(255,0,0)        #blocked - red	
-
-			self.chnl22 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[21], self.y[21]))
-			self.chnl22.add_attr(self.circletrans)
-			if self.terminate_states[22]:
-				self.chnl22.set_color(0,255,0)        #available - green
-			else:
-				self.chnl22.set_color(255,0,0)        #blocked - red
-			
-			self.chnl23 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[22], self.y[22]))
-			self.chnl23.add_attr(self.circletrans)
-			if self.terminate_states[23]:
-				self.chnl23.set_color(0,255,0)        #available - green
-			else:
-				self.chnl23.set_color(255,0,0)        #blocked - red
-			
-			self.chnl24 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[23], self.y[23]))
-			self.chnl24.add_attr(self.circletrans)
-			if self.terminate_states[24]:
-				self.chnl24.set_color(0,255,0)        #available - green
-			else:
-				self.chnl24.set_color(255,0,0)        #blocked - red
-			
-			self.chnl25 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[24], self.y[24]))
-			self.chnl25.add_attr(self.circletrans)
-			if self.terminate_states[25]:
-				self.chnl25.set_color(0,255,0)        #available - green
-			else:
-				self.chnl25.set_color(255,0,0)        #blocked - red
-			
-			self.chnl26 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[25], self.y[25]))
-			self.chnl26.add_attr(self.circletrans)
-			if self.terminate_states[26]:
-				self.chnl26.set_color(0,255,0)        #available - green
-			else:
-				self.chnl26.set_color(255,0,0)        #blocked - red
-			
-			self.chnl27 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[26], self.y[26]))
-			self.chnl27.add_attr(self.circletrans)
-			if self.terminate_states[27]:
-				self.chnl27.set_color(0,255,0)        #available - green
-			else:
-				self.chnl27.set_color(255,0,0)        #blocked - red
-			
-			self.chnl28 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[27], self.y[27]))
-			self.chnl28.add_attr(self.circletrans)
-			if self.terminate_states[28]:
-				self.chnl28.set_color(0,255,0)        #available - green
-			else:
-				self.chnl28.set_color(255,0,0)        #blocked - red
-			
-			self.chnl29 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[28], self.y[28]))
-			self.chnl29.add_attr(self.circletrans)
-			if self.terminate_states[29]:
-				self.chnl29.set_color(0,255,0)        #available - green
-			else:
-				self.chnl29.set_color(255,0,0)        #blocked - red
-			
-			self.chnl30 = rendering.make_circle(50)
-			self.circletrans = rendering.Transform(translation=(self.x[29], self.y[29]))
-			self.chnl30.add_attr(self.circletrans)
-			if self.terminate_states[30]:
-				self.chnl30.set_color(0,255,0)        #available - green
-			else:
-				self.chnl30.set_color(255,0,0)        #blocked - red
+#            		#创建第二个信道
+#			self.chnl2 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[1], self.y[1]))
+#			self.chnl2.add_attr(self.circletrans)
+#			if self.terminate_states[2]:
+#				self.chnl2.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl2.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl3 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[2], self.y[2]))
+#			self.chnl3.add_attr(self.circletrans)
+#			if self.terminate_states[3]:
+#				self.chnl3.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl3.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl4 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[3], self.y[3]))
+#			self.chnl4.add_attr(self.circletrans)
+#			if self.terminate_states[4]:
+#				self.chnl4.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl4.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl5 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[4], self.y[4]))
+#			self.chnl5.add_attr(self.circletrans)
+#			if self.terminate_states[5]:
+#				self.chnl5.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl5.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl6 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[5], self.y[5]))
+#			self.chnl6.add_attr(self.circletrans)
+#			if self.terminate_states[6]:
+#				self.chnl6.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl6.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl7 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[6], self.y[6]))
+#			self.chnl7.add_attr(self.circletrans)
+#			if self.terminate_states[7]:
+#				self.chnl7.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl7.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl8 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[7], self.y[7]))
+#			self.chnl8.add_attr(self.circletrans)
+#			if self.terminate_states[8]:
+#				self.chnl8.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl8.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl9 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[8], self.y[8]))
+#			self.chnl9.add_attr(self.circletrans)
+#			if self.terminate_states[9]:
+#				self.chnl9.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl9.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl10 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[9], self.y[9]))
+#			self.chnl10.add_attr(self.circletrans)
+#			if self.terminate_states[10]:
+#				self.chnl10.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl10.set_color(255,0,0)        #blocked - red
+#
+#		##创建第11个信道
+#			self.chnl11 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[10], self.y[10]))
+#			self.chnl11.add_attr(self.circletrans)
+#			if self.terminate_states[11]:
+#				self.chnl11.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl11.set_color(255,0,0)        #blocked - red	
+#
+#			self.chnl12 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[11], self.y[11]))
+#			self.chnl12.add_attr(self.circletrans)
+#			if self.terminate_states[12]:
+#				self.chnl12.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl12.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl13 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[12], self.y[12]))
+#			self.chnl13.add_attr(self.circletrans)
+#			if self.terminate_states[13]:
+#				self.chnl13.set_color(0,255,0)        #available - green
+#
+#			else:
+#				self.chnl13.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl14 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[13], self.y[13]))
+#			self.chnl14.add_attr(self.circletrans)
+#			if self.terminate_states[14]:
+#				self.chnl14.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl14.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl15 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[14], self.y[14]))
+#			self.chnl15.add_attr(self.circletrans)
+#			if self.terminate_states[15]:
+#				self.chnl15.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl15.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl16 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[15], self.y[15]))
+#			self.chnl16.add_attr(self.circletrans)
+#			if self.terminate_states[16]:
+#				self.chnl16.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl16.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl17 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[16], self.y[16]))
+#			self.chnl17.add_attr(self.circletrans)
+#			if self.terminate_states[17]:
+#				self.chnl17.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl17.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl18 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[17], self.y[17]))
+#			self.chnl18.add_attr(self.circletrans)
+#			if self.terminate_states[18]:
+#				self.chnl18.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl18.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl19 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[18], self.y[18]))
+#			self.chnl19.add_attr(self.circletrans)
+#			if self.terminate_states[19]:
+#				self.chnl19.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl19.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl20 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[19], self.y[19]))
+#			self.chnl20.add_attr(self.circletrans)
+#			if self.terminate_states[20]:
+#				self.chnl20.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl20.set_color(255,0,0)        #blocked - red
+#		##创建第21个信道
+#			self.chnl21 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[20], self.y[20]))
+#			self.chnl21.add_attr(self.circletrans)
+#			if self.terminate_states[21]:
+#				self.chnl21.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl21.set_color(255,0,0)        #blocked - red	
+#
+#			self.chnl22 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[21], self.y[21]))
+#			self.chnl22.add_attr(self.circletrans)
+#			if self.terminate_states[22]:
+#				self.chnl22.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl22.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl23 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[22], self.y[22]))
+#			self.chnl23.add_attr(self.circletrans)
+#			if self.terminate_states[23]:
+#				self.chnl23.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl23.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl24 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[23], self.y[23]))
+#			self.chnl24.add_attr(self.circletrans)
+#			if self.terminate_states[24]:
+#				self.chnl24.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl24.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl25 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[24], self.y[24]))
+#			self.chnl25.add_attr(self.circletrans)
+#			if self.terminate_states[25]:
+#				self.chnl25.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl25.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl26 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[25], self.y[25]))
+#			self.chnl26.add_attr(self.circletrans)
+#			if self.terminate_states[26]:
+#				self.chnl26.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl26.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl27 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[26], self.y[26]))
+#			self.chnl27.add_attr(self.circletrans)
+#			if self.terminate_states[27]:
+#				self.chnl27.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl27.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl28 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[27], self.y[27]))
+#			self.chnl28.add_attr(self.circletrans)
+#			if self.terminate_states[28]:
+#				self.chnl28.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl28.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl29 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[28], self.y[28]))
+#			self.chnl29.add_attr(self.circletrans)
+#			if self.terminate_states[29]:
+#				self.chnl29.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl29.set_color(255,0,0)        #blocked - red
+#			
+#			self.chnl30 = rendering.make_circle(50)
+#			self.circletrans = rendering.Transform(translation=(self.x[29], self.y[29]))
+#			self.chnl30.add_attr(self.circletrans)
+#			if self.terminate_states[30]:
+#				self.chnl30.set_color(0,255,0)        #available - green
+#			else:
+#				self.chnl30.set_color(255,0,0)        #blocked - red
 			
             		#创建机器人
 			self.robot= rendering.make_circle(30)
@@ -423,192 +425,195 @@ class ChannelEnv(gym.Env):
 			self.robot.add_attr(self.robotrans)
 			self.robot.set_color(255, 255, 255)
 			
-			self.viewer.add_geom(self.chnl1)
-			self.viewer.add_geom(self.chnl2)
-			self.viewer.add_geom(self.chnl3)
-			self.viewer.add_geom(self.chnl4)
-			self.viewer.add_geom(self.chnl5)
-			self.viewer.add_geom(self.chnl6)
-			self.viewer.add_geom(self.chnl7)
-			self.viewer.add_geom(self.chnl8)
-			self.viewer.add_geom(self.chnl9)
-			self.viewer.add_geom(self.chnl10)
+			for i in range(CHANNEL_CNT):
+				self.viewer.add_geom(self.chnl[i])
+			#self.viewer.add_geom(self.chnl1)
+			#self.viewer.add_geom(self.chnl2)
+			#self.viewer.add_geom(self.chnl3)
+			#self.viewer.add_geom(self.chnl4)
+			#self.viewer.add_geom(self.chnl5)
+			#self.viewer.add_geom(self.chnl6)
+			#self.viewer.add_geom(self.chnl7)
+			#self.viewer.add_geom(self.chnl8)
+			#self.viewer.add_geom(self.chnl9)
+			#self.viewer.add_geom(self.chnl10)
 
-			self.viewer.add_geom(self.chnl11)
-			self.viewer.add_geom(self.chnl12)
-			self.viewer.add_geom(self.chnl13)
-			self.viewer.add_geom(self.chnl14)
-			self.viewer.add_geom(self.chnl15)
-			self.viewer.add_geom(self.chnl16)
-			self.viewer.add_geom(self.chnl17)
-			self.viewer.add_geom(self.chnl18)
-			self.viewer.add_geom(self.chnl19)
-			self.viewer.add_geom(self.chnl20)
+			#self.viewer.add_geom(self.chnl11)
+			#self.viewer.add_geom(self.chnl12)
+			#self.viewer.add_geom(self.chnl13)
+			#self.viewer.add_geom(self.chnl14)
+			#self.viewer.add_geom(self.chnl15)
+			#self.viewer.add_geom(self.chnl16)
+			#self.viewer.add_geom(self.chnl17)
+			#self.viewer.add_geom(self.chnl18)
+			#self.viewer.add_geom(self.chnl19)
+			#self.viewer.add_geom(self.chnl20)
 
-			self.viewer.add_geom(self.chnl21)
-			self.viewer.add_geom(self.chnl22)
-			self.viewer.add_geom(self.chnl23)
-			self.viewer.add_geom(self.chnl24)
-			self.viewer.add_geom(self.chnl25)
-			self.viewer.add_geom(self.chnl26)
-			self.viewer.add_geom(self.chnl27)
-			self.viewer.add_geom(self.chnl28)
-			self.viewer.add_geom(self.chnl29)
-			self.viewer.add_geom(self.chnl30)
+			#self.viewer.add_geom(self.chnl21)
+			#self.viewer.add_geom(self.chnl22)
+			#self.viewer.add_geom(self.chnl23)
+			#self.viewer.add_geom(self.chnl24)
+			#self.viewer.add_geom(self.chnl25)
+			#self.viewer.add_geom(self.chnl26)
+			#self.viewer.add_geom(self.chnl27)
+			#self.viewer.add_geom(self.chnl28)
+			#self.viewer.add_geom(self.chnl29)
+			#self.viewer.add_geom(self.chnl30)
 
 			self.viewer.add_geom(self.robot)
 
 		else:
-			if self.terminate_states[1]:
-				self.chnl1.set_color(0,255,0)        #available - green
-			else:
-				self.chnl1.set_color(255,0,0)        #blocked - red
+			for i in range(CHANNEL_CNT):
+				if self.terminate_states[i + 1]:
+					self.chnl[i].set_color(0,255,0)        #available - green
+				else:
+					self.chnl[i].set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[2]:
-				self.chnl2.set_color(0,255,0)        #available - green
-			else:
-				self.chnl2.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[2]:
+			#	self.chnl2.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl2.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[3]:
-				self.chnl3.set_color(0,255,0)        #available - green
-			else:
-				self.chnl3.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[3]:
+			#	self.chnl3.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl3.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[4]:
-				self.chnl4.set_color(0,255,0)        #available - green
-			else:
-				self.chnl4.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[4]:
+			#	self.chnl4.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl4.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[5]:
-				self.chnl5.set_color(0,255,0)        #available - green
-			else:
-				self.chnl5.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[5]:
+			#	self.chnl5.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl5.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[6]:
-				self.chnl6.set_color(0,255,0)        #available - green
-			else:
-				self.chnl6.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[6]:
+			#	self.chnl6.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl6.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[7]:
-				self.chnl7.set_color(0,255,0)        #available - green
-			else:
-				self.chnl7.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[7]:
+			#	self.chnl7.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl7.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[8]:
-				self.chnl8.set_color(0,255,0)        #available - green
-			else:
-				self.chnl8.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[8]:
+			#	self.chnl8.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl8.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[9]:
-				self.chnl9.set_color(0,255,0)        #available - green
-			else:
-				self.chnl9.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[9]:
+			#	self.chnl9.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl9.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[10]:
-				self.chnl10.set_color(0,255,0)        #available - green
-			else:
-				self.chnl10.set_color(255,0,0)        #blocked - red
-			
+			#if self.terminate_states[10]:
+			#	self.chnl10.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl10.set_color(255,0,0)        #blocked - red
+			#
 		#11
-			if self.terminate_states[11]:
-				self.chnl11.set_color(0,255,0)        #available - green
-			else:
-				self.chnl11.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[11]:
+			#	self.chnl11.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl11.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[12]:
-				self.chnl12.set_color(0,255,0)        #available - green
-			else:
-				self.chnl12.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[12]:
+			#	self.chnl12.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl12.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[13]:
-				self.chnl13.set_color(0,255,0)        #available - green
-			else:
-				self.chnl13.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[13]:
+			#	self.chnl13.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl13.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[14]:
-				self.chnl14.set_color(0,255,0)        #available - green
-			else:
-				self.chnl14.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[14]:
+			#	self.chnl14.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl14.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[15]:
-				self.chnl15.set_color(0,255,0)        #available - green
-			else:
-				self.chnl15.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[15]:
+			#	self.chnl15.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl15.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[16]:
-				self.chnl16.set_color(0,255,0)        #available - green
-			else:
-				self.chnl16.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[16]:
+			#	self.chnl16.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl16.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[17]:
-				self.chnl17.set_color(0,255,0)        #available - green
-			else:
-				self.chnl17.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[17]:
+			#	self.chnl17.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl17.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[18]:
-				self.chnl18.set_color(0,255,0)        #available - green
-			else:
-				self.chnl18.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[18]:
+			#	self.chnl18.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl18.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[19]:
-				self.chnl19.set_color(0,255,0)        #available - green
-			else:
-				self.chnl19.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[19]:
+			#	self.chnl19.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl19.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[20]:
-				self.chnl20.set_color(0,255,0)        #available - green
-			else:
-				self.chnl20.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[20]:
+			#	self.chnl20.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl20.set_color(255,0,0)        #blocked - red
 		#21
-			if self.terminate_states[21]:
-				self.chnl21.set_color(0,255,0)        #available - green
-			else:
-				self.chnl21.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[21]:
+			#	self.chnl21.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl21.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[22]:
-				self.chnl22.set_color(0,255,0)        #available - green
-			else:
-				self.chnl22.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[22]:
+			#	self.chnl22.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl22.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[23]:
-				self.chnl23.set_color(0,255,0)        #available - green
-			else:
-				self.chnl23.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[23]:
+			#	self.chnl23.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl23.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[24]:
-				self.chnl24.set_color(0,255,0)        #available - green
-			else:
-				self.chnl24.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[24]:
+			#	self.chnl24.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl24.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[25]:
-				self.chnl25.set_color(0,255,0)        #available - green
-			else:
-				self.chnl25.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[25]:
+			#	self.chnl25.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl25.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[26]:
-				self.chnl26.set_color(0,255,0)        #available - green
-			else:
-				self.chnl26.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[26]:
+			#	self.chnl26.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl26.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[27]:
-				self.chnl27.set_color(0,255,0)        #available - green
-			else:
-				self.chnl27.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[27]:
+			#	self.chnl27.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl27.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[28]:
-				self.chnl28.set_color(0,255,0)        #available - green
-			else:
-				self.chnl28.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[28]:
+			#	self.chnl28.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl28.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[29]:
-				self.chnl29.set_color(0,255,0)        #available - green
-			else:
-				self.chnl29.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[29]:
+			#	self.chnl29.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl29.set_color(255,0,0)        #blocked - red
 
-			if self.terminate_states[30]:
-				self.chnl30.set_color(0,255,0)        #available - green
-			else:
-				self.chnl30.set_color(255,0,0)        #blocked - red
+			#if self.terminate_states[30]:
+			#	self.chnl30.set_color(0,255,0)        #available - green
+			#else:
+			#	self.chnl30.set_color(255,0,0)        #blocked - red
 			
 			
 		
