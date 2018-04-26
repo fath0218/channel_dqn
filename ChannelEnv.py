@@ -258,5 +258,3 @@ class ChannelEnv(gym.Env):
 		
 		
 		return self.viewer.render(return_rgb_array=mode == 'rgb_array')
-
-
