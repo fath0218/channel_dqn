@@ -6,11 +6,7 @@ from keras.models import Sequential
 from keras.layers import *
 from keras.optimizers import * 
 
-plt.axis([0, 8, 0.5, 6])
 #plt.ion()
-
-CHANNEL_CNT = 30
-
 
 class Brain:
 
@@ -136,21 +132,26 @@ class Environment:
     def __init__(self, problem):
         self.problem = problem
         self.env = gym.make(problem)
-        self.pick_times = [0 for x in range(CHANNEL_CNT)]
+        self.channel_cnt = self.env.env.channel_cnt
+        self.pick_times = [0 for x in range(self.channel_cnt)]
         self.overall_step = 0.000
         self.hundred_step = [0.000 for x in range(0, 100)]
         self.overall_connect = 0.000
+        self.overall_one_step = 0.000
+        self.hundred_one_step = [0.000 for x in range(0, 100)] 
 
     def run(self, agent):
         s = self.env.reset()
         R = 0 
         step = 0
+        run_time = 0
         
         while True:            
             self.env.render()
 
             a = agent.act(s)
             step += 1
+            run_time += 1
             print("act------------:", a+1)
             s_, r, done, info = self.env.step(a+1)
             print("reward:", r)
@@ -158,6 +159,7 @@ class Environment:
             if done: # terminal state
                 self.pick_times[s_-1] += 1
                 s_ = None
+                #s_ = self.env.reset()
 
             agent.observe( (s, a, r, s_) )
             agent.replay()            
@@ -167,29 +169,53 @@ class Environment:
 
             if done:
                 break
+                #print("Steps taken:", step)
+
+            #if (run_time == 100):
+               # break
 	
         print("Total reward:", R)
-        print("Steps taken:", step)
+        
         self.hundred_step[int(self.overall_connect % 100)] = step
         self.overall_step += float(step)
+        
+        if (step == 1):
+            self.overall_one_step += 1
+            self.hundred_one_step[int(self.overall_connect % 100)] = 1
+        else:
+            self.hundred_one_step[int(self.overall_connect % 100)] = 0
+
         self.overall_connect += 1.000
         avg_step = float(self.overall_step/self.overall_connect)
         print("Average steps:\t\t\t\t", avg_step)
+
         if int(self.overall_connect) > 100:
             avg_step_100 = float(sum(self.hundred_step)/100)
         else:
             avg_step_100 = float(sum(self.hundred_step)/int(self.overall_connect))
         print("Average steps of latest 100 tries:\t", avg_step_100)
-        #for i in range (CHANNEL_CNT):
-         #   if self.pick_times[i] != 0:
-                #print("Channel %d picked times: %d" %(i+1, self.pick_times[i]))
+        
+        for i in range (self.channel_cnt):
+            if self.pick_times[i] != 0:
+                print("Channel %d picked times: %d" %(i+1, self.pick_times[i]))
+
+        avg_one_step = float(self.overall_one_step/self.overall_connect)
+        print("Overall success rate:\t\t\t%", avg_one_step * 100)
+        if int(self.overall_connect) > 100:
+            avg_one_step_100 = float(sum(self.hundred_one_step)/100)
+        else:
+            avg_one_step_100 = float(sum(self.hundred_one_step)/int(self.overall_connect))
+        print("Success rate of latest 100 tries:\t%", avg_one_step_100 * 100)
+
         print("Overall run time:", int(self.overall_connect))
         print("\n")
 
-        if int(self.overall_connect) < 245:
-            x_scale = numpy.log(int(self.overall_connect))
-        else: 
-            x_scale = numpy.log10(int(self.overall_connect)) + 3.1
+        #if int(self.overall_connect) < 245:
+        x_scale = numpy.log(int(self.overall_connect))
+        #else: 
+        #    x_scale = numpy.log10(int(self.overall_connect)) + 3.1
+        plt.subplot(2,1,1)
+        #plt.axis()
         if int(self.overall_connect) < 245:
             plt.scatter(x_scale, avg_step, c = 'r')
             plt.scatter(x_scale, avg_step_100, c = 'b')
@@ -202,20 +228,27 @@ class Environment:
             plt.scatter(x_scale, avg_step, c = 'r')
             plt.scatter(x_scale, avg_step_100, c = 'b')
             plt.pause(0.00001)
-        elif (int(self.overall_connect) < 10000) and (int(self.overall_connect) % 100 == 0):
+        elif (int(self.overall_connect) < 30000) and (int(self.overall_connect) % 100 == 0):
             plt.scatter(x_scale, avg_step, c = 'r')
             plt.scatter(x_scale, avg_step_100, c = 'b')
             plt.pause(0.00001)
+        
+        plt.subplot(2,1,2)
+        if (int(self.overall_connect) % 100 == 0):
+            plt.bar(range(len(self.pick_times)), self.pick_times, color="blue")
 
 #-------------------- MAIN ----------------------------
 PROBLEM = 'Channel-v0'
 env = Environment(PROBLEM)
 
 stateCnt  = np.array(1)#env.env.observation_space.shape[0]
-actionCnt = CHANNEL_CNT#env.env.action_space.n
+actionCnt = env.env.env.channel_cnt
 
 agent = Agent(stateCnt, actionCnt)
 
+#env.run(agent)
+#env.run(agent)
+#env.run(agent)
 try:
     while True:
         env.run(agent)
