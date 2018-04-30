@@ -159,15 +159,17 @@ class Environment:
 
 			print("act------------:", a+1)
 			s_, r, done, info = self.env.step(a+1)
+			#self.env.env.getRewardChart()
+			#self.env.env.getTChart()
 			print("reward:", r)
 
 			if done: # terminal state
-				self.pick_times[s_-1] += 1
+				self.pick_times[s_-1-self.channel_cnt] += 1
 				run_time += 1
 				if (single_step == 1):
 					self.overall_one_step += 1
 				single_step = 0 
-				#s_ = None                       # it's ok to run without this line, almost no influence to performance
+				#s_ = None           # it's ok to run without this line, almost no influence to performance
 				#agent.observe( (s, a, r, s_) )
 				#s_ = self.env.reset()
 				print ("done\n")
@@ -181,7 +183,7 @@ class Environment:
 #			if done:
 #				break
 
-			if (run_time == 10):
+			if (run_time == 10):   #modifiable, output frequency
 				break
 	
 		print("Total reward:", R)
