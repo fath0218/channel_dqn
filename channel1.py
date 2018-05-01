@@ -231,18 +231,22 @@ class Environment:
 		if int(self.overall_connect) < 245:
 			plt.scatter(x_scale, avg_step, c = 'r')
 			plt.scatter(x_scale, avg_step_100, c = 'b')
+			plt.scatter(x_scale, avg_one_step, c = 'y')
 			plt.pause(0.00001)
 		elif (int(self.overall_connect) < 1000) and (int(self.overall_connect) % 10 == 0):
 			plt.scatter(x_scale, avg_step, c = 'r')
 			plt.scatter(x_scale, avg_step_100, c = 'b')
+			plt.scatter(x_scale, avg_one_step, c = 'y')
 			plt.pause(0.00001)
 		elif (int(self.overall_connect) < 2000) and (int(self.overall_connect) % 30 == 0):
 			plt.scatter(x_scale, avg_step, c = 'r')
 			plt.scatter(x_scale, avg_step_100, c = 'b')
+			plt.scatter(x_scale, avg_one_step, c = 'y')
 			plt.pause(0.00001)
 		elif (int(self.overall_connect) < 30000) and (int(self.overall_connect) % 100 == 0):
 			plt.scatter(x_scale, avg_step, c = 'r')
 			plt.scatter(x_scale, avg_step_100, c = 'b')
+			plt.scatter(x_scale, avg_one_step, c = 'y')
 			plt.pause(0.00001)
         
 		plt.subplot(2,1,2)
