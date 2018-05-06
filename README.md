@@ -44,3 +44,29 @@ cd gym
 pip install -e '.[classic_control]'
 ```
 see also the github page of [gym](https://github.com/openai/gym).
+
+
+### Add channel environment
+1. Open `<where you clone the gym respo>gym/gym/envs/__init__.py`, add:
+```
+register( id='Channel-v0',
+entry_point='gym.envs.classic_control:ChannelEnv',
+max_episode_steps=200, reward_threshold=100.0, )
+```
+2. Open `<where you clone the gym respo>/gym/gym/envs/classic_control/__init__.py` and add: `from gym.envs.classic_control.ChannelEnv import ChannelEnv` 
+
+### Run the program
+1. Use `git clone` to clone this respo.
+2. `cd channel_dqn` and open `run.sh` and change the third line of code. 
+```
+#!/bin/bash
+# Update the environment, then run the agent
+cp ChannelEnv.py <where you clone the gym respo>/gym/gym/envs/classic_control/ChannelEnv.py
+python ./channel1.py
+```
+3. Use `chmod +x ./run.sh` to give execute permission.
+4. Run the program. 
+```
+./run.sh
+```
+The `run.sh` file will copy the `ChannelEnv.py` into the gym and execute program `channel1.py`
