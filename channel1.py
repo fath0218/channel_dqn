@@ -8,7 +8,6 @@ from keras.optimizers import *
 
 #plt.ion()
 global literation           #Number of test literation
-global CHANNEL_CNT
 
 class Brain:
 
@@ -132,11 +131,9 @@ class Agent:
 #-------------------- ENVIRONMENT ---------------------
 class Environment:
     def __init__(self, problem):
-        global CHANNEL_CNT
         self.problem = problem
         self.env = gym.make(problem)
         self.channel_cnt = self.env.env.channel_cnt
-        CHANNEL_CNT = self.channel_cnt
         self.pick_times = [0 for x in range(self.channel_cnt)]
         self.overall_step = 0.000
         self.hundred_step = [0.000 for x in range(0, 100)]
@@ -191,6 +188,44 @@ class Environment:
 
         f_agent.close()
 
+    def draw_plots(self):
+        global literation
+        f_agent = open("agent.csv", "r")
+        f_agent.readline()
+        channel_chosen_cnt = [0] * self.channel_cnt
+        success_connexion = 0
+        block_num = 30
+        block_cnt = 0
+        local_ind_ls = []
+        local_success_ls = []
+        local_success = 0
+
+        for i in range(0, literation):
+            step_str = f_agent.readline()
+            s = int(step_str.split(",")[0]) # Read the current state
+            channel_chosen_cnt[self.env.env.getChannelNumber(s) - 1] += 1
+            if not self.env.env.isChannelBlocked(s): # success connexion
+                success_connexion += 1
+                local_success += 1
+
+            block_cnt += 1
+            if block_cnt % block_num == 0:
+                # count the success number of block_num communications
+                block_cnt = 0
+                local_ind_ls.append(i)
+                local_success_ls.append(local_success / block_num)
+                local_success = 0
+                block_cnt = 0
+        # Draw charts
+        plt.subplot(2,1,1) # Draw outage probability
+        plt.plot(local_ind_ls, local_success_ls)
+        plt.ylabel('Success Rate')
+        plt.subplot(2,1,2)
+        plt.bar(range(len(channel_chosen_cnt)), channel_chosen_cnt, color="blue", align='center')
+
+        plt.show()
+
+        f_agent.close()
 #            if done:
 #                break
 
@@ -264,53 +299,16 @@ class Environment:
         #if (int(self.overall_connect) % 100 == 0):
         #    plt.bar(range(len(self.pick_times)), self.pick_times, color="blue")
 
-def draw_plots():
-    global literation
-    global CHANNEL_CNT
-    f_agent = open("agent.csv", "r")
-    f_agent.readline()
-    channel_chosen_cnt = [0] * CHANNEL_CNT
-    success_connexion = 0
-    block_num = 30
-    block_cnt = 0
-    local_ind_ls = []
-    local_success_ls = []
-    local_success = 0
-
-    for i in range(0, literation):
-            step_str = f_agent.readline()
-            s = int(step_str.split(",")[0]) # Read the current state
-            channel_chosen_cnt[s % CHANNEL_CNT] += 1
-            if s >= CHANNEL_CNT: # success connexion
-                    success_connexion += 1
-                    local_success += 1
-            block_cnt += 1
-            if block_cnt % block_num == 0:
-                    block_cnt = 0
-                    local_ind_ls.append(i)
-                    local_success_ls.append(local_success / block_num)
-                    local_success = 0
-                    block_cnt = 0
-    # Draw charts
-    plt.subplot(2,1,1) # Draw outage probability
-    plt.plot(local_ind_ls, local_success_ls)
-    plt.ylabel('Success Rate')
-    plt.subplot(2,1,2)
-    plt.bar(range(len(channel_chosen_cnt)), channel_chosen_cnt, color="blue", align='center')
-
-    plt.show()
-
-    f_agent.close()
 
 
 #-------------------- MAIN ----------------------------
 global literation
-literation = 1500
+literation = 5500
 PROBLEM = 'Channel-v0'
 env = Environment(PROBLEM)
 
 stateCnt  = np.array(1)#env.env.observation_space.shape[0]
-actionCnt = env.env.env.channel_cnt
+actionCnt = env.channel_cnt
 
 agent = Agent(stateCnt, actionCnt)
 
@@ -320,6 +318,6 @@ agent = Agent(stateCnt, actionCnt)
 try:
     #while True:
     env.run(agent)
-    draw_plots()
+    env.draw_plots()
 finally:
     agent.brain.model.save("channel.h5")
