@@ -57,11 +57,12 @@ max_episode_steps=200, reward_threshold=100.0, )
 
 ### Run the program
 1. Use `git clone` to clone this respo.
-2. `cd channel_dqn` and open `run.sh` and change the third line of code. 
+2. `cd channel_dqn` and open `run.sh` and change the line 3 and 4 of code. 
 ```
 #!/bin/bash
 # Update the environment, then run the agent
 cp ChannelEnv.py <where you clone the gym respo>/gym/gym/envs/classic_control/ChannelEnv.py
+cp channelConfig.py <where you clone the gym respo>/gym/gym/envs/classic_control/channelConfig.py
 python ./channel1.py
 ```
 3. Use `chmod +x ./run.sh` to give execute permission.

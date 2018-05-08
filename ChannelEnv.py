@@ -5,25 +5,26 @@ import random
 from gym import spaces, logger
 from gym.utils import seeding
 import numpy as np
+import channelConfig as channelConfig
 
 logger = logging.getLogger(__name__)
 
-CORRECT_REWARD = 30.0  #wrong to correct
-CR_TO_CR_REWARD = -10.0  #correct to another correct
-PUNISH_REWARD = -80.0  #wrong to itself
-WR_TO_WR_REWARD = -50.0  #wrong to another wrong
-CR_TO_WR_REWARD = -100.0  #correct to wrong
-STUBBORN_REWARD = 10.0 #stick to a certain correct channel
+CORRECT_REWARD = channelConfig.CORRECT_REWARD  #wrong to correct
+CR_TO_CR_REWARD = channelConfig.CR_TO_CR_REWARD  #correct to another correct
+PUNISH_REWARD = channelConfig.PUNISH_REWARD  #wrong to itself
+WR_TO_WR_REWARD = channelConfig.WR_TO_WR_REWARD  #wrong to another wrong
+CR_TO_WR_REWARD = channelConfig.CR_TO_WR_REWARD  #correct to wrong
+STUBBORN_REWARD = channelConfig.STUBBORN_REWARD #stick to a certain correct channel
 
 
 
-CHANNEL_CNT = 10
-STATE_CNT = 20   #double of channal count
+CHANNEL_CNT = channelConfig.CHANNEL_CNT
+STATE_CNT = channelConfig.STATE_CNT #double of channal count
 
-BLOCK_CNT = 3
-USR_CNT = 3
-REFRESH = 1
-REFRESH_METHOD_OLD = 0
+BLOCK_CNT = channelConfig.BLOCK_CNT
+USR_CNT = channelConfig.USR_CNT
+REFRESH = channelConfig.REFRESH
+REFRESH_METHOD_OLD = channelConfig.REFRESH_METHOD_OLD
 
 class ChannelEnv(gym.Env):
     metadata = {

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import *
 from keras.optimizers import *
-
+import channelConfig as channelConfig
 #plt.ion()
 global literation           #Number of test literation
 
@@ -303,7 +303,7 @@ class Environment:
 
 #-------------------- MAIN ----------------------------
 global literation
-literation = 5500
+literation = channelConfig.literation
 PROBLEM = 'Channel-v0'
 env = Environment(PROBLEM)
 
