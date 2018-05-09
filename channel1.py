@@ -153,6 +153,13 @@ class Environment:
         single_step = 0                #step for every successful try
         f_agent = open("agent.csv", "w")
         f_agent.write('state,action,reward,next_state\n')
+        f_channel = open("channel_available.csv", "w")
+        for i in range(self.channel_cnt):
+            f_channel.write(str(i+1))
+            if i < self.channel_cnt-1:
+                f_channel.write(',')
+            else:
+                f_channel.write('\n')
 
         for i in range(0, literation):
             self.env.render()
@@ -163,30 +170,39 @@ class Environment:
 
             print("act------------:", a+1)
             s_, r, done, info = self.env.step(a+1)
+            channel_available = self.env.env.getChannelAvailable()
             #self.env.env.getRewardChart()
             #self.env.env.getTChart()
             print("reward:", r)
 
-            if done: # terminal state
-                self.pick_times[s_-1-self.channel_cnt] += 1
-                run_time += 1
-                if (single_step == 1):
-                    self.overall_one_step += 1
-                single_step = 0
-                #s_ = None           # it's ok to run without this line, almost no influence to performance
-                #agent.observe( (s, a, r, s_) )
-                #s_ = self.env.reset()
-                print ("done\n")
+           # if done: # terminal state
+           #     self.pick_times[s_-1-self.channel_cnt] += 1
+           #     run_time += 1
+           #     if (single_step == 1):
+           #         self.overall_one_step += 1
+           #     single_step = 0
+           #     #s_ = None           # it's ok to run without this line, almost no influence to performance
+           #     #agent.observe( (s, a, r, s_) )
+           #     #s_ = self.env.reset()
+           #     print ("done\n")
 
             agent.observe( (s, a, r, s_) ) #include add to memory
             agent.replay()
             record_str = str(s)+','+str(a)+','+str(r)+','+str(s_)+'\n'
             f_agent.write(record_str)
+            print ('length of channel_available:'+str(len(channel_available)))
+            for j in range(self.channel_cnt):
+                f_channel.write(str(channel_available[j+1]))
+                if j < self.channel_cnt-1:
+                    f_channel.write(',')
+                else:
+                    f_channel.write('\n')
 
             s = s_
             R += r
 
         f_agent.close()
+        f_channel.close()
 
     def draw_plots(self):
         global literation

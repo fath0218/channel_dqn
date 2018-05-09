@@ -56,42 +56,14 @@ class ChannelEnv(gym.Env):
 
         self.channel_p1 = [0.9, 0.11, 0.85, 0.92, 0.95, 0.99, 0.8, 0.60, 0.98, 0.99, 0.90, 0.05, 0.80, 0.05, 0.91, 0.93, 0.80, 0.95, 0.92, 0.08, 0.90, 0.93, 0.99, 0.37, 0.95, 0.91, 0.99, 0.87, 0.04, 0.91] #jamming probability
 
+        self.channel_p = channelConfig.CHANNEL_P
+        self.p_aggre=[0 for x in range(CHANNEL_CNT+1)]
+        for i in range (1,CHANNEL_CNT+1):
+            self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
         #终止状态为字典格式 #需初始化及动态更新
-        self.terminate_states = dict()
-        for i in range(CHANNEL_CNT):
-            self.terminate_states[i+1] = 1
-        if (REFRESH_METHOD_OLD):
-            for i in range (CHANNEL_CNT):
-                ran = random.random()
-                #print("channel:", i+1)
-                if ran < self.channel_p1[i]:
-                    #print("random num:", ran)
-                    #print("channel_p:", self.channel_p[i])
-                    #print("channel blocked")
-                    self.terminate_states[i+1] = 0         #this channel blocked
-                else:
-                    #print("random num:", ran)
-                    #print("channel_p:", self.channel_p[i])
-                    #print("channel available")
-                    self.terminate_states[i+1] = 1         #this channel available
-        else:
-            self.channel_p = [0.22, 0.21, 0.05, 0.02, 0.25, 0.14, 0.02, 0.01, 0.04, 0.04]
-            self.p_aggre=[0 for x in range(CHANNEL_CNT+1)]
+        self.channel_available = dict()
 
-            for i in range (1,CHANNEL_CNT+1):
-                self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
-
-            while self.available_cnt > (CHANNEL_CNT-BLOCK_CNT):
-                ran = random.random()
-                for i in range (CHANNEL_CNT):
-                    if (self.terminate_states[i+1] == 1):
-                        if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
-                            self.terminate_states[i+1] = 0
-                        else:
-                            self.terminate_states[i+1] = 1
-                self.available_cnt = 0
-                for i in range (CHANNEL_CNT):
-                    self.available_cnt += self.terminate_states[i+1]
+        self.jammerAction()
 
         self.actions = [0 for x in range(CHANNEL_CNT)]
         for i in range (CHANNEL_CNT):
@@ -102,17 +74,17 @@ class ChannelEnv(gym.Env):
             for j in range (CHANNEL_CNT):
                 key = "%d-%d"%(i+1, j+1)
                 if self.isChannelBlocked(i):             #i is blocked
-                    if (self.terminate_states[j+1] == 1):
+                    if (self.channel_available[j+1] == 1):
                         self.rewards[key] = CORRECT_REWARD       #wrong to correct
-                    elif (self.terminate_states[j+1] == 0):
+                    elif (self.channel_available[j+1] == 0):
                         if (i==j):
                             self.rewards[key] = PUNISH_REWARD     #wrong to itself
                         else:
                             self.rewards[key] = WR_TO_WR_REWARD   #wrong to another wrong
                 else:                             # i-10 is available
-                    if (self.terminate_states[j+1] == 0):
+                    if (self.channel_available[j+1] == 0):
                         self.rewards[key] = CR_TO_WR_REWARD           #correct to wrong
-                    elif (self.terminate_states[j+1] == 1):
+                    elif (self.channel_available[j+1] == 1):
                         if (self.getChannelNumber(i) == j):
                             self.rewards[key] = CORRECT_REWARD    #correct to itself
                         else:
@@ -122,7 +94,7 @@ class ChannelEnv(gym.Env):
         for i in range (STATE_CNT):
             for j in range (CHANNEL_CNT):
                 key = "%d-%d"%(i+1, j+1)
-                if (self.terminate_states[j+1] == 0):
+                if (self.channel_available[j+1] == 0):
                     self.t[key] = j+1
                 else:
                     self.t[key] = j + 1 + CHANNEL_CNT
@@ -132,8 +104,8 @@ class ChannelEnv(gym.Env):
         self.state = None
 
 
-    def getTerminal(self):
-        return self.terminate_states
+    #def getTerminal(self):
+    #    return self.channel_available
 
     def getGamma(self):
         return self.gamma
@@ -143,8 +115,8 @@ class ChannelEnv(gym.Env):
 
     def getAction(self):
         return self.actions
-    def getTerminate_states(self):
-        return self.terminate_states
+    def getChannelAvailable(self):
+        return self.channel_available
     def setAction(self,s):
         self.state=s
     def getRewardChart(self):
@@ -163,11 +135,48 @@ class ChannelEnv(gym.Env):
         else:
             return s
 
+    def jammerAction(self):
+        for i in range(CHANNEL_CNT):
+            self.channel_available[i+1] = 1
+        if (REFRESH_METHOD_OLD):
+            for i in range (CHANNEL_CNT):
+                ran = random.random()
+                print("channel:", i+1)
+                if ran < self.channel_p1[i]:
+                    #print("random num:", ran)
+                    #print("channel_p:", self.channel_p1[i])
+                    #print("channel blocked")
+                    self.channel_available[i+1] = 0         #this channel blocked
+                else:
+                    #print("random num:", ran)
+                    #print("channel_p:", self.channel_p1[i])
+                    #print("channel available")
+                    self.channel_available[i+1] = 1         #this channel available
+        else:
+            ran = random.random()
+            for i in range (CHANNEL_CNT):
+                if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+                    self.channel_available[i+1] = 0
+                else:
+                    self.channel_available[i+1] = 1
+            self.available_cnt = CHANNEL_CNT - 1
+            while self.available_cnt > (CHANNEL_CNT-BLOCK_CNT):
+                ran = random.random()
+                for i in range (CHANNEL_CNT):
+                    if (self.channel_available[i+1] == 1):
+                        if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+                            self.channel_available[i+1] = 0
+                        else:
+                            self.channel_available[i+1] = 1
+                self.available_cnt = 0
+                for i in range (CHANNEL_CNT):
+                    self.available_cnt += self.channel_available[i+1]
+
     def step(self, action):
             #系统当前状态
         state = self.state
         print("present state:", state)
-#        if self.terminate_states[state]:
+#        if self.channel_available[state]:
         #if (state > CHANNEL_CNT):
         #    #print("this is the terminal state")
         #    print("this is the terminal state")
@@ -201,7 +210,7 @@ class ChannelEnv(gym.Env):
 
         is_terminal = False
 
-#        if self.terminate_states[next_state]:
+#        if self.channel_available[next_state]:
         if (next_state > CHANNEL_CNT):
                    is_terminal = True #was True
 
@@ -213,64 +222,33 @@ class ChannelEnv(gym.Env):
             r = self.rewards[key]
 
         #刷新信道使用状态
+        curr_channel_available = self.channel_available
         self.refresh()
 
-        return np.array(next_state), r,is_terminal,{}
+        return np.array(next_state), r, 0 ,{}
 
     def refresh(self):
     #刷新信道使用状态
         if (REFRESH):
+            self.jammerAction()
     #######################################################################################
-            if (REFRESH_METHOD_OLD):
-                for i in range (CHANNEL_CNT):
-                    ran = random.random()
-                    print("channel:", i+1)
-                    if ran < self.channel_p1[i]:
-                        #print("random num:", ran)
-                        #print("channel_p:", self.channel_p1[i])
-                        #print("channel blocked")
-                        self.terminate_states[i+1] = 0         #this channel blocked
-                    else:
-                        #print("random num:", ran)
-                        #print("channel_p:", self.channel_p1[i])
-                        #print("channel available")
-                        self.terminate_states[i+1] = 1         #this channel available
-            else:
-                ran = random.random()
-                for i in range (CHANNEL_CNT):
-                    if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
-                        self.terminate_states[i+1] = 0
-                    else:
-                        self.terminate_states[i+1] = 1
-                self.available_cnt = CHANNEL_CNT - 1
-                while self.available_cnt > (CHANNEL_CNT-BLOCK_CNT):
-                    ran = random.random()
-                    for i in range (CHANNEL_CNT):
-                        if (self.terminate_states[i+1] == 1):
-                            if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
-                                self.terminate_states[i+1] = 0
-                            else:
-                                self.terminate_states[i+1] = 1
-                    self.available_cnt = 0
-                    for i in range (CHANNEL_CNT):
-                        self.available_cnt += self.terminate_states[i+1]
     #reward update
     ######################################################################################
             for i in range (STATE_CNT):   #i in 0-9 means blocked, 10-19 means available
                 for j in range (CHANNEL_CNT):
                     key = "%d-%d"%(i+1, j+1)
                     if (i < CHANNEL_CNT):             #i is blocked
-                        if (self.terminate_states[j+1] == 1):
+                        if (self.channel_available[j+1] == 1):
                             self.rewards[key] = CORRECT_REWARD       #wrong to correct
-                        elif (self.terminate_states[j+1] == 0):
+                        elif (self.channel_available[j+1] == 0):
                             if (i==j):
                                 self.rewards[key] = PUNISH_REWARD     #wrong to itself
                             else:
                                 self.rewards[key] = WR_TO_WR_REWARD   #wrong to another wrong
                     else:                             # i-10 is available
-                        if (self.terminate_states[j+1] == 0):
+                        if (self.channel_available[j+1] == 0):
                             self.rewards[key] = CR_TO_WR_REWARD           #correct to wrong
-                        elif (self.terminate_states[j+1] == 1):
+                        elif (self.channel_available[j+1] == 1):
                             if ((i-CHANNEL_CNT) == j):
                                 self.rewards[key] = STUBBORN_REWARD    #correct to itself
                             else:
@@ -280,14 +258,14 @@ class ChannelEnv(gym.Env):
             for i in range (STATE_CNT):
                 for j in range (CHANNEL_CNT):
                     key = "%d-%d"%(i+1, j+1)
-                    if (self.terminate_states[j+1] == 0):
+                    if (self.channel_available[j+1] == 0):
                         self.t[key] = j+1
                     else:
                         self.t[key] = j + 1 + CHANNEL_CNT
 
     def reset(self):
         i = int(random.random() * CHANNEL_CNT) + 1
-        if (self.terminate_states[i]):
+        if self.channel_available[i]:
             self.state = i + CHANNEL_CNT
         else:
             self.state = i
@@ -313,7 +291,7 @@ class ChannelEnv(gym.Env):
                 self.chnl.append(rendering.make_circle(50))
                 self.circletrans = rendering.Transform(translation=(self.x[i], self.y[i]))
                 self.chnl[i].add_attr(self.circletrans)
-                if self.terminate_states[i + 1]:
+                if self.channel_available[i + 1]:
                     self.chnl[i].set_color(0,255,0)        #available - green
                 else:
                     self.chnl[i].set_color(255,0,0) #blocked - red
@@ -330,7 +308,7 @@ class ChannelEnv(gym.Env):
 
         else:
             for i in range(CHANNEL_CNT):
-                if self.terminate_states[i + 1]:
+                if self.channel_available[i + 1]:
                     self.chnl[i].set_color(0,255,0)        #available - green
                 else:
                     self.chnl[i].set_color(255,0,0) #blocked - red
