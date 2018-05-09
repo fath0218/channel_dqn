@@ -190,7 +190,6 @@ class Environment:
             agent.replay()
             record_str = str(s)+','+str(a)+','+str(r)+','+str(s_)+'\n'
             f_agent.write(record_str)
-            print ('length of channel_available:'+str(len(channel_available)))
             for j in range(self.channel_cnt):
                 f_channel.write(str(channel_available[j+1]))
                 if j < self.channel_cnt-1:

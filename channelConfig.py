@@ -15,6 +15,7 @@ BLOCK_CNT = 3
 USR_CNT = 3
 REFRESH = 1
 REFRESH_METHOD_OLD = 0
+JAMMER_TYPE = 'Random_jammer_2'
 CHANNEL_P = [0.22, 0.21, 0.05, 0.02, 0.25, 0.14, 0.02, 0.01, 0.04, 0.04]
 
 ##channel1

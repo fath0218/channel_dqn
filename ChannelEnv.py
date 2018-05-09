@@ -25,6 +25,7 @@ BLOCK_CNT = channelConfig.BLOCK_CNT
 USR_CNT = channelConfig.USR_CNT
 REFRESH = channelConfig.REFRESH
 REFRESH_METHOD_OLD = channelConfig.REFRESH_METHOD_OLD
+JAMMER_TYPE = channelConfig.JAMMER_TYPE
 
 class ChannelEnv(gym.Env):
     metadata = {
@@ -69,35 +70,10 @@ class ChannelEnv(gym.Env):
         for i in range (CHANNEL_CNT):
             self.actions[i] = i+1
 
-        self.rewards = dict();        #回报的数据结构为字典
-        for i in range (STATE_CNT):   #i in 0-9 means blocked, 10-19 means available
-            for j in range (CHANNEL_CNT):
-                key = "%d-%d"%(i+1, j+1)
-                if self.isChannelBlocked(i):             #i is blocked
-                    if (self.channel_available[j+1] == 1):
-                        self.rewards[key] = CORRECT_REWARD       #wrong to correct
-                    elif (self.channel_available[j+1] == 0):
-                        if (i==j):
-                            self.rewards[key] = PUNISH_REWARD     #wrong to itself
-                        else:
-                            self.rewards[key] = WR_TO_WR_REWARD   #wrong to another wrong
-                else:                             # i-10 is available
-                    if (self.channel_available[j+1] == 0):
-                        self.rewards[key] = CR_TO_WR_REWARD           #correct to wrong
-                    elif (self.channel_available[j+1] == 1):
-                        if (self.getChannelNumber(i) == j):
-                            self.rewards[key] = CORRECT_REWARD    #correct to itself
-                        else:
-                            self.rewards[key] = CR_TO_CR_REWARD   #correct to another correct
-
-        self.t = dict();             #状态转移的数据格式为字典
-        for i in range (STATE_CNT):
-            for j in range (CHANNEL_CNT):
-                key = "%d-%d"%(i+1, j+1)
-                if (self.channel_available[j+1] == 0):
-                    self.t[key] = j+1
-                else:
-                    self.t[key] = j + 1 + CHANNEL_CNT
+        self.rewards = dict()        #回报的数据结构为字典
+        self.calculateReward()
+        self.t = dict()             #状态转移的数据格式为字典
+        self.updateStateTransfert()
 
         self.gamma = 0.8         #折扣因子
         self.viewer = None
@@ -138,7 +114,9 @@ class ChannelEnv(gym.Env):
     def jammerAction(self):
         for i in range(CHANNEL_CNT):
             self.channel_available[i+1] = 1
-        if (REFRESH_METHOD_OLD):
+        if JAMMER_TYPE == 'Random_jammer_1':
+            # A jammer blockes certain channels with fixed probability
+            # The number of jammed channels is different at each timeslot
             for i in range (CHANNEL_CNT):
                 ran = random.random()
                 print("channel:", i+1)
@@ -152,7 +130,8 @@ class ChannelEnv(gym.Env):
                     #print("channel_p:", self.channel_p1[i])
                     #print("channel available")
                     self.channel_available[i+1] = 1         #this channel available
-        else:
+        elif JAMMER_TYPE == 'Random_jammer_2':
+            # A jammer blockes 3 channels at each timeslot with fixed probability
             ran = random.random()
             for i in range (CHANNEL_CNT):
                 if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
@@ -171,6 +150,38 @@ class ChannelEnv(gym.Env):
                 self.available_cnt = 0
                 for i in range (CHANNEL_CNT):
                     self.available_cnt += self.channel_available[i+1]
+        else:
+            print ("No jammer named:" + JAMMER_TYPE)
+
+    def calculateReward(self):
+        for i in range (STATE_CNT):   #i in 0-9 means blocked, 10-19 means available
+            for j in range (CHANNEL_CNT):
+                key = "%d-%d"%(i+1, j+1)
+                if self.isChannelBlocked(i):             #i is blocked
+                    if (self.channel_available[j+1] == 1):
+                        self.rewards[key] = CORRECT_REWARD       #wrong to correct
+                    elif (self.channel_available[j+1] == 0):
+                        if (i==j):
+                            self.rewards[key] = PUNISH_REWARD     #wrong to itself
+                        else:
+                            self.rewards[key] = WR_TO_WR_REWARD   #wrong to another wrong
+                else:                             # i-10 is available
+                    if (self.channel_available[j+1] == 0):
+                        self.rewards[key] = CR_TO_WR_REWARD           #correct to wrong
+                    elif (self.channel_available[j+1] == 1):
+                        if (self.getChannelNumber(i) == j):
+                            self.rewards[key] = CORRECT_REWARD    #correct to itself
+                        else:
+                            self.rewards[key] = CR_TO_CR_REWARD   #correct to another correct
+
+    def updateStateTransfert(self):
+        for i in range (STATE_CNT):
+            for j in range (CHANNEL_CNT):
+                key = "%d-%d"%(i+1, j+1)
+                if (self.channel_available[j+1] == 0):
+                    self.t[key] = j+1
+                else:
+                    self.t[key] = j + 1 + CHANNEL_CNT
 
     def step(self, action):
             #系统当前状态
@@ -234,34 +245,10 @@ class ChannelEnv(gym.Env):
     #######################################################################################
     #reward update
     ######################################################################################
-            for i in range (STATE_CNT):   #i in 0-9 means blocked, 10-19 means available
-                for j in range (CHANNEL_CNT):
-                    key = "%d-%d"%(i+1, j+1)
-                    if (i < CHANNEL_CNT):             #i is blocked
-                        if (self.channel_available[j+1] == 1):
-                            self.rewards[key] = CORRECT_REWARD       #wrong to correct
-                        elif (self.channel_available[j+1] == 0):
-                            if (i==j):
-                                self.rewards[key] = PUNISH_REWARD     #wrong to itself
-                            else:
-                                self.rewards[key] = WR_TO_WR_REWARD   #wrong to another wrong
-                    else:                             # i-10 is available
-                        if (self.channel_available[j+1] == 0):
-                            self.rewards[key] = CR_TO_WR_REWARD           #correct to wrong
-                        elif (self.channel_available[j+1] == 1):
-                            if ((i-CHANNEL_CNT) == j):
-                                self.rewards[key] = STUBBORN_REWARD    #correct to itself
-                            else:
-                                self.rewards[key] = CR_TO_CR_REWARD   #correct to another correct
+            self.calculateReward()
     #t update
     ############################################################################################
-            for i in range (STATE_CNT):
-                for j in range (CHANNEL_CNT):
-                    key = "%d-%d"%(i+1, j+1)
-                    if (self.channel_available[j+1] == 0):
-                        self.t[key] = j+1
-                    else:
-                        self.t[key] = j + 1 + CHANNEL_CNT
+            self.updateStateTransfert()
 
     def reset(self):
         i = int(random.random() * CHANNEL_CNT) + 1
