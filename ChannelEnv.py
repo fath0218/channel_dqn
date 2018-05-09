@@ -21,11 +21,73 @@ STUBBORN_REWARD = channelConfig.STUBBORN_REWARD #stick to a certain correct chan
 CHANNEL_CNT = channelConfig.CHANNEL_CNT
 STATE_CNT = channelConfig.STATE_CNT #double of channal count
 
-BLOCK_CNT = channelConfig.BLOCK_CNT
+#BLOCK_CNT = channelConfig.BLOCK_CNT
 USR_CNT = channelConfig.USR_CNT
 REFRESH = channelConfig.REFRESH
-REFRESH_METHOD_OLD = channelConfig.REFRESH_METHOD_OLD
-JAMMER_TYPE = channelConfig.JAMMER_TYPE
+#REFRESH_METHOD_OLD = channelConfig.REFRESH_METHOD_OLD
+#JAMMER_TYPE = channelConfig.JAMMER_TYPE
+
+
+class Jammer:
+    def __init__(self):
+        self.type = channelConfig.JAMMER_TYPE
+        self.block_cnt = channelConfig.BLOCK_CNT
+        self.state = 0
+        self.channel_p = channelConfig.CHANNEL_P[self.state]
+        self.p_aggre=[0 for x in range(CHANNEL_CNT+1)]
+        for i in range (1,CHANNEL_CNT+1):
+            self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
+
+    def changeState(self):
+        if self.type == 'Markov_jammer':
+            if self.state == 0:
+                self.state = 1
+            else:
+                self.state = 0
+            self.channel_p = channelConfig.CHANNEL_P[self.state]
+            for i in range (1,CHANNEL_CNT+1):
+                self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
+
+
+    def act(self):
+        self.changeState()
+        channel_available = dict()
+        for i in range(CHANNEL_CNT):
+            channel_available[i+1] = 1
+        if self.type == 'Random_jammer_1':
+            # A jammer blockes certain channels with fixed probability
+            # The number of jammed channels is different at each timeslot
+            for i in range (CHANNEL_CNT):
+                ran = random.random()
+                print("channel:", i+1)
+                if ran < self.channel_p1[i]:
+                    #print("random num:", ran)
+                    #print("channel_p:", self.channel_p1[i])
+                    #print("channel blocked")
+                    channel_available[i+1] = 0         #this channel blocked
+                else:
+                    #print("random num:", ran)
+                    #print("channel_p:", self.channel_p1[i])
+                    #print("channel available")
+                    channel_available[i+1] = 1         #this channel available
+        elif self.type == 'Random_jammer_2' or self.type == 'Markov_jammer':
+            # A jammer blockes 3 channels at each timeslot with fixed probability
+            ran = random.random()
+            for i in range (CHANNEL_CNT):
+                if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+                    channel_available[i+1] = 0
+            available_cnt = CHANNEL_CNT - 1
+            while available_cnt > (CHANNEL_CNT-self.block_cnt):
+                ran = random.random()
+                for i in range (CHANNEL_CNT):
+                    if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+                        channel_available[i+1] = 0
+                available_cnt = 0
+                for i in range (CHANNEL_CNT):
+                    available_cnt += channel_available[i+1]
+        else:
+            print ("No jammer named:" + JAMMER_TYPE)
+        return channel_available
 
 class ChannelEnv(gym.Env):
     metadata = {
@@ -35,10 +97,10 @@ class ChannelEnv(gym.Env):
 
     def __init__(self):
         self.states = range(1,STATE_CNT+1) #状态空间
-        self.available_cnt = CHANNEL_CNT
         self.x=[0 for x in range(CHANNEL_CNT)]
         self.y=[0 for x in range(CHANNEL_CNT)]
         self.channel_cnt = CHANNEL_CNT
+        self.jammer = Jammer()
 
         for i in range (CHANNEL_CNT):
             if (i % 5 == 0):
@@ -57,14 +119,9 @@ class ChannelEnv(gym.Env):
 
         self.channel_p1 = [0.9, 0.11, 0.85, 0.92, 0.95, 0.99, 0.8, 0.60, 0.98, 0.99, 0.90, 0.05, 0.80, 0.05, 0.91, 0.93, 0.80, 0.95, 0.92, 0.08, 0.90, 0.93, 0.99, 0.37, 0.95, 0.91, 0.99, 0.87, 0.04, 0.91] #jamming probability
 
-        self.channel_p = channelConfig.CHANNEL_P
-        self.p_aggre=[0 for x in range(CHANNEL_CNT+1)]
-        for i in range (1,CHANNEL_CNT+1):
-            self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
         #终止状态为字典格式 #需初始化及动态更新
-        self.channel_available = dict()
 
-        self.jammerAction()
+        self.channel_available = self.jammer.act()
 
         self.actions = [0 for x in range(CHANNEL_CNT)]
         for i in range (CHANNEL_CNT):
@@ -111,47 +168,47 @@ class ChannelEnv(gym.Env):
         else:
             return s
 
-    def jammerAction(self):
-        for i in range(CHANNEL_CNT):
-            self.channel_available[i+1] = 1
-        if JAMMER_TYPE == 'Random_jammer_1':
-            # A jammer blockes certain channels with fixed probability
-            # The number of jammed channels is different at each timeslot
-            for i in range (CHANNEL_CNT):
-                ran = random.random()
-                print("channel:", i+1)
-                if ran < self.channel_p1[i]:
-                    #print("random num:", ran)
-                    #print("channel_p:", self.channel_p1[i])
-                    #print("channel blocked")
-                    self.channel_available[i+1] = 0         #this channel blocked
-                else:
-                    #print("random num:", ran)
-                    #print("channel_p:", self.channel_p1[i])
-                    #print("channel available")
-                    self.channel_available[i+1] = 1         #this channel available
-        elif JAMMER_TYPE == 'Random_jammer_2':
-            # A jammer blockes 3 channels at each timeslot with fixed probability
-            ran = random.random()
-            for i in range (CHANNEL_CNT):
-                if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
-                    self.channel_available[i+1] = 0
-                else:
-                    self.channel_available[i+1] = 1
-            self.available_cnt = CHANNEL_CNT - 1
-            while self.available_cnt > (CHANNEL_CNT-BLOCK_CNT):
-                ran = random.random()
-                for i in range (CHANNEL_CNT):
-                    if (self.channel_available[i+1] == 1):
-                        if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
-                            self.channel_available[i+1] = 0
-                        else:
-                            self.channel_available[i+1] = 1
-                self.available_cnt = 0
-                for i in range (CHANNEL_CNT):
-                    self.available_cnt += self.channel_available[i+1]
-        else:
-            print ("No jammer named:" + JAMMER_TYPE)
+    #def jammerAction(self):
+    #    for i in range(CHANNEL_CNT):
+    #        self.channel_available[i+1] = 1
+    #    if JAMMER_TYPE == 'Random_jammer_1':
+    #        # A jammer blockes certain channels with fixed probability
+    #        # The number of jammed channels is different at each timeslot
+    #        for i in range (CHANNEL_CNT):
+    #            ran = random.random()
+    #            print("channel:", i+1)
+    #            if ran < self.channel_p1[i]:
+    #                #print("random num:", ran)
+    #                #print("channel_p:", self.channel_p1[i])
+    #                #print("channel blocked")
+    #                self.channel_available[i+1] = 0         #this channel blocked
+    #            else:
+    #                #print("random num:", ran)
+    #                #print("channel_p:", self.channel_p1[i])
+    #                #print("channel available")
+    #                self.channel_available[i+1] = 1         #this channel available
+    #    elif JAMMER_TYPE == 'Random_jammer_2':
+    #        # A jammer blockes 3 channels at each timeslot with fixed probability
+    #        ran = random.random()
+    #        for i in range (CHANNEL_CNT):
+    #            if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+    #                self.channel_available[i+1] = 0
+    #            else:
+    #                self.channel_available[i+1] = 1
+    #        self.available_cnt = CHANNEL_CNT - 1
+    #        while self.available_cnt > (CHANNEL_CNT-BLOCK_CNT):
+    #            ran = random.random()
+    #            for i in range (CHANNEL_CNT):
+    #                if (self.channel_available[i+1] == 1):
+    #                    if (ran >= self.p_aggre[i]) and (ran < self.p_aggre[i+1]):
+    #                        self.channel_available[i+1] = 0
+    #                    else:
+    #                        self.channel_available[i+1] = 1
+    #            self.available_cnt = 0
+    #            for i in range (CHANNEL_CNT):
+    #                self.available_cnt += self.channel_available[i+1]
+    #    else:
+    #        print ("No jammer named:" + JAMMER_TYPE)
 
     def calculateReward(self):
         for i in range (STATE_CNT):   #i in 0-9 means blocked, 10-19 means available
@@ -233,7 +290,6 @@ class ChannelEnv(gym.Env):
             r = self.rewards[key]
 
         #刷新信道使用状态
-        curr_channel_available = self.channel_available
         self.refresh()
 
         return np.array(next_state), r, 0 ,{}
@@ -241,7 +297,7 @@ class ChannelEnv(gym.Env):
     def refresh(self):
     #刷新信道使用状态
         if (REFRESH):
-            self.jammerAction()
+            self.channel_available = self.jammer.act()
     #######################################################################################
     #reward update
     ######################################################################################

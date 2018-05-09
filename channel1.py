@@ -236,7 +236,7 @@ class Environment:
         plt.plot(local_ind_ls, local_success_ls)
         plt.ylabel('Success Rate')
         plt.subplot(2,1,2)
-        plt.bar(range(len(channel_chosen_cnt)), channel_chosen_cnt, color="blue", align='center')
+        plt.bar(range(1, len(channel_chosen_cnt)+1), channel_chosen_cnt, color="blue", align='center')
 
         plt.show()
 
