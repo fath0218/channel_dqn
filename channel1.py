@@ -9,6 +9,8 @@ import channelConfig as channelConfig
 #plt.ion()
 global literation           #Number of test literation
 
+OBSERV_BATCH = channelConfig.OBSERV_BATCH
+
 class Brain:
 
     def __init__(self, stateCnt, actionCnt):
@@ -21,7 +23,8 @@ class Brain:
     def _createModel(self):
         model = Sequential()
 
-        model.add(Dense(output_dim=64, activation='relu', input_dim=1))#stateCnt
+        model.add(Dense(output_dim=64, activation='relu', input_dim=OBSERV_BATCH))#stateCnt
+        model.add(Dense(output_dim=64, activation='relu'))          #######################################
         model.add(Dense(output_dim=actionCnt, activation='linear'))
 
         opt = RMSprop(lr=0.00025)
@@ -42,8 +45,10 @@ class Brain:
             return self.model.predict(s)
 
     def predictOne(self, s, target=False):
-        return self.predict(s.reshape(1, self.stateCnt), target=target).flatten()
-        #return self.predict(self.stateCnt, target=target).flatten()
+        #return self.predict(s.reshape(1, stateCnt), target=target).flatten()
+
+        print ("**************################", np.array(s))
+        return self.predict(np.array(s).reshape(1, OBSERV_BATCH), target=target).flatten()############################
 
 #-------------------- MEMORY --------------------------
 class Memory:   # stored as ( s, a, r, s_ )
@@ -57,6 +62,7 @@ class Memory:   # stored as ( s, a, r, s_ )
 
         if len(self.samples) > self.capacity:
             self.samples.pop(0)
+        #print ("samples\n\n",self.samples)
 
     def sample(self, n):
         n = min(n, len(self.samples))
@@ -64,7 +70,7 @@ class Memory:   # stored as ( s, a, r, s_ )
 
 #-------------------- AGENT ---------------------------
 MEMORY_CAPACITY = 100000
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 GAMMA = 0.99
 
@@ -101,6 +107,7 @@ class Agent:
     def replay(self):
         batch = self.memory.sample(BATCH_SIZE)
         batchLen = len(batch)
+        #print (batch)
 
         no_state = numpy.zeros(self.stateCnt)
 
@@ -110,7 +117,8 @@ class Agent:
         p = self.brain.predict(states)
         p_ = self.brain.predict(states_)
 
-        x = numpy.zeros((batchLen, self.stateCnt))
+        #x = numpy.zeros((batchLen, self.stateCnt))
+        x = numpy.zeros((batchLen, np.array(OBSERV_BATCH))) #######################################
         y = numpy.zeros((batchLen, self.actionCnt))
 
         for i in range(batchLen):
@@ -161,14 +169,23 @@ class Environment:
             else:
                 f_channel.write('\n')
 
+        state_batch = [0 for x in range(0, OBSERV_BATCH)]  
+        next_state_batch = [0 for x in range(0, OBSERV_BATCH)]  
+
+        state_batch[0] = s
+
         for i in range(0, literation):
             self.env.render()
 
-            a = agent.act(s)
+            #a = agent.act(s)
+            a = agent.act(state_batch)
+
             step += 1
             single_step += 1
 
             print("act------------:", a+1)
+            self.env.env.setStateBatch(state_batch)#################################################
+
             s_, r, done, info = self.env.step(a+1)
             channel_available = self.env.env.getChannelAvailable()
             #self.env.env.getRewardChart()
@@ -186,7 +203,15 @@ class Environment:
            #     #s_ = self.env.reset()
            #     print ("done\n")
 
-            agent.observe( (s, a, r, s_) ) #include add to memory
+            for i in range(OBSERV_BATCH - 1, 0, -1): 
+                next_state_batch[i] = state_batch[i-1]
+
+            next_state_batch[0]= s_
+
+            #agent.observe( (s, a, r, s_) ) #include add to memory
+            print ( "stuff to be observed#############",(np.array(state_batch), a, r, np.array(next_state_batch)) )
+            agent.observe( (np.array(state_batch), a, r, np.array(next_state_batch)) )###################################
+
             agent.replay()
             record_str = str(s)+','+str(a)+','+str(r)+','+str(s_)+'\n'
             f_agent.write(record_str)
@@ -198,6 +223,9 @@ class Environment:
                     f_channel.write('\n')
 
             s = s_
+            for i in range(0, OBSERV_BATCH):   
+                state_batch[i] = next_state_batch[i]
+
             R += r
 
         f_agent.close()

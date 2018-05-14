@@ -16,7 +16,7 @@ WR_TO_WR_REWARD = channelConfig.WR_TO_WR_REWARD  #wrong to another wrong
 CR_TO_WR_REWARD = channelConfig.CR_TO_WR_REWARD  #correct to wrong
 STUBBORN_REWARD = channelConfig.STUBBORN_REWARD #stick to a certain correct channel
 
-
+OBSERV_BATCH = channelConfig.OBSERV_BATCH
 
 CHANNEL_CNT = channelConfig.CHANNEL_CNT
 STATE_CNT = channelConfig.STATE_CNT #double of channal count
@@ -45,6 +45,7 @@ class Jammer:
             else:
                 self.state = 0
             self.channel_p = channelConfig.CHANNEL_P[self.state]
+            print (self.channel_p)
             for i in range (1,CHANNEL_CNT+1):
                 self.p_aggre[i] = self.channel_p[i-1] + self.p_aggre[i-1]
 
@@ -101,6 +102,7 @@ class ChannelEnv(gym.Env):
         self.y=[0 for x in range(CHANNEL_CNT)]
         self.channel_cnt = CHANNEL_CNT
         self.jammer = Jammer()
+        self.state_batch = [0 for x in range(OBSERV_BATCH)]
 
         for i in range (CHANNEL_CNT):
             if (i % 5 == 0):
@@ -167,6 +169,9 @@ class ChannelEnv(gym.Env):
             return s - self.channel_cnt
         else:
             return s
+
+    def setStateBatch(self, s):
+        self.state_batch = s
 
     #def jammerAction(self):
     #    for i in range(CHANNEL_CNT):
@@ -244,6 +249,8 @@ class ChannelEnv(gym.Env):
             #系统当前状态
         state = self.state
         print("present state:", state)
+        #print("present state:", self.state_batch[0])
+
 #        if self.channel_available[state]:
         #if (state > CHANNEL_CNT):
         #    #print("this is the terminal state")
@@ -265,7 +272,7 @@ class ChannelEnv(gym.Env):
 
         key = "%d-%d"%(state, action)   #将状态和动作组成字典的键值
         print("key:", key)
-        print("reward:",self.rewards[key])
+        #print("reward:",self.rewards[key])
             #状态转移
         if key in self.t:
             print("key in dict:", key)
@@ -282,6 +289,7 @@ class ChannelEnv(gym.Env):
         if (next_state > CHANNEL_CNT):
                    is_terminal = True #was True
 
+            #reward 定义
         if key not in self.rewards:
             print ("key not in reward dict")
             r = 0.0
@@ -289,6 +297,37 @@ class ChannelEnv(gym.Env):
             print ("key in reward dict")
             r = self.rewards[key]
 
+   ###########in case of markov ################################################ I think the way we calculate reward matters
+        if (self.jammer.type == 'Markov_jammer'):
+            avail_sum_state = OBSERV_BATCH
+            avail_sum_state_next = OBSERV_BATCH                      #现在主要考虑的是OBSERV_BATCH长度中有几次通信成功
+            for i in range (OBSERV_BATCH):                           #对比当前状态的batch中的通信次数与下一状态batch的次数
+                if (self.isChannelBlocked(self.state_batch[i])):     #来给出reward  （代码中后四个elif）
+                    avail_sum_state -= 1
+            for i in range (OBSERV_BATCH-1):
+                if (self.isChannelBlocked(self.state_batch[i])):     #还有就是如果action与当前信道相同的情况
+                    avail_sum_state_next -= 1                        #见if和第一个elif
+            if (self.isChannelBlocked(next_state)):                  #总之目前的reward算法不适合科学。。。performance也很差
+                avail_sum_state_next -= 1
+            print(avail_sum_state)
+            print(avail_sum_state_next)
+
+            if (next_state == 2 * self.state_batch[0]):
+                r = 500
+            elif (next_state == 0.5 * self.state_batch[0]):
+                r = -300
+            
+            elif (avail_sum_state < avail_sum_state_next):
+                r = 100#CORRECT_REWARD
+            elif(avail_sum_state > avail_sum_state_next):
+                r = PUNISH_REWARD
+            elif(avail_sum_state_next == OBSERV_BATCH):
+                r = 50#STUBBORN_REWARD
+            else:
+                r = -10
+
+            r = r * (avail_sum_state_next + 1)
+        #############################################################################################################
         #刷新信道使用状态
         self.refresh()
 
@@ -298,12 +337,9 @@ class ChannelEnv(gym.Env):
     #刷新信道使用状态
         if (REFRESH):
             self.channel_available = self.jammer.act()
-    #######################################################################################
     #reward update
-    ######################################################################################
             self.calculateReward()
     #t update
-    ############################################################################################
             self.updateStateTransfert()
 
     def reset(self):
