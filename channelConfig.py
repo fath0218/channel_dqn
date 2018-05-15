@@ -22,6 +22,6 @@ JAMMER_TYPE = 'Markov_jammer'
 CHANNEL_P = [[0.22, 0.21, 0.05, 0.02, 0.25, 0.14, 0.02, 0.01, 0.04, 0.04], [0, 0, 0.15, 0.15, 0, 0, 0.15, 0.25, 0.15, 0.15]]
 
 ##channel1
-literation = 500
+literation = 2000
 
 OBSERV_BATCH = 2 #number of timeslot to be observed
