@@ -269,6 +269,7 @@ class ChannelEnv(gym.Env):
         #    self.refresh()
 
         #    return np.array(state), self.rewards[key], True, {}
+        self.channel_available = self.jammer.act()
 
         key = "%d-%d"%(state, action)   #将状态和动作组成字典的键值
         print("key:", key)
@@ -312,24 +313,24 @@ class ChannelEnv(gym.Env):
             print(avail_sum_state)
             print(avail_sum_state_next)
 
-            if (next_state == 2 * self.state_batch[0]):
-                r = 500
-            elif (next_state == 0.5 * self.state_batch[0]):
-                r = -300
-            
-            elif (avail_sum_state < avail_sum_state_next):
-                r = 100#CORRECT_REWARD
-            elif(avail_sum_state > avail_sum_state_next):
-                r = PUNISH_REWARD
-            elif(avail_sum_state_next == OBSERV_BATCH):
-                r = 50#STUBBORN_REWARD
-            else:
-                r = -10
+           # if (next_state == 2 * self.state_batch[0]):
+           #     r = 500
+           # elif (next_state == 0.5 * self.state_batch[0]):
+           #     r = -300
 
-            r = r * (avail_sum_state_next + 1)
+           # elif (avail_sum_state < avail_sum_state_next):
+           #     r = 100#CORRECT_REWARD
+           # elif(avail_sum_state > avail_sum_state_next):
+           #     r = PUNISH_REWARD
+           # elif(avail_sum_state_next == OBSERV_BATCH):
+           #     r = 50#STUBBORN_REWARD
+           # else:
+           #     r = -10
+
+            r = avail_sum_state_next
         #############################################################################################################
         #刷新信道使用状态
-        self.refresh()
+        #self.refresh()
 
         return np.array(next_state), r, 0 ,{}
 
